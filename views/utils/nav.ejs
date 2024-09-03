@@ -1,0 +1,69 @@
+<nav class="flex justify-evenly items-center p-4 w-full  h-[10vh] bg-white">
+
+  <div class="flex items-center gap-3">
+    <a class="cursor-pointer" href="/">
+      <img src="/images/logo.png" alt="Logo" class="w-50 h-50" />
+    </a>
+    <h1 class="text-4xl font-semibold mt-1">
+      <a href="/">SHOPPER</a>
+    </h1>
+  </div>
+
+  <ul class="hidden md:flex gap-8 text-teal-800">
+    <li><a class="hover:border-b-2 border-teal-400" href="/">Shop</a></li>
+    <li><a class="hover:border-b-2 border-teal-400" href="/men">Men</a></li>
+    <li><a class="hover:border-b-2 border-teal-400" href="/women">Women</a></li>
+    <li><a class="hover:border-b-2 border-teal-400" href="/kids">Kids</a></li>
+  </ul>
+
+
+  <div class="hidden md:flex gap-5">
+    <button class="px-4 py-2 rounded-full border-2 border-teal-200 font-semibold text-teal-700">
+      Login
+    </button>
+    <button class="px-4 py-2 rounded-full border-2 border-teal-200 font-semibold text-teal-700">
+      <a href="/sign">SignUp</a>
+    </button>
+  </div>
+
+
+  <a href="/cart" class="hidden md:flex">
+    <img src="/images/cart_icon.png" alt="Cart" class="w-6 h-6" />
+  </a>
+
+  <button id="mobile-menu-button" class="md:hidden">
+    <svg class="w-6 h-6 text-teal-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+    </svg>
+  </button>
+
+
+  <div id="mobile-menu" class="absolute top-16 left-0 w-full bg-white flex-col items-center gap-4 p-4 hidden md:hidden">
+    <ul class="flex flex-col gap-4 text-teal-800">
+      <li><a class="hover:border-b-2 border-teal-400" href="/">Shop</a></li>
+      <li><a class="hover:border-b-2 border-teal-400" href="/men">Men</a></li>
+      <li><a class="hover:border-b-2 border-teal-400" href="/women">Women</a></li>
+      <li><a class="hover:border-b-2 border-teal-400" href="/kids">Kids</a></li>
+    </ul>
+    <div class="flex flex-col gap-4 mt-6">
+      <button class="px-4 py-2 rounded-full border-2 border-teal-200 font-semibold text-teal-700 w-[40vw]">
+        Login
+      </button>
+      <button class="px-4 py-2 rounded-full border-2 border-teal-200 font-semibold text-teal-700 w-[40vw]">
+        <a href="/sign">SignUp</a>
+      </button>
+      <a href="/cart">
+        <img src="/images/cart_icon.png" alt="Cart" class="w-6 h-6" />
+      </a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const menuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  menuButton.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden')
+  })
+</script>

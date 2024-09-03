@@ -1,0 +1,27 @@
+<!-- views/order-complete.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Complete</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+</head>
+<body class="font-mono text-[18px] w-full h-full">
+    <div class="container mx-auto p-4 ">
+        <%- include('utils/nav') %>
+
+        <h1 class="text-3xl font-semibold mb-4 text-center mt-6">Thank You for Your Purchase!</h1>
+        
+        <div class="bg-white shadow-lg rounded-lg p-6 bg-grey-100">
+            <p class="text-xl text-center text-green-600 mb-4">Your order has been placed successfully.</p>
+
+            <div class="mt-8 text-center">
+                <a href="/" class="bg-blue-500 text-white py-2 px-6 rounded hover:bg-blue-600">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
