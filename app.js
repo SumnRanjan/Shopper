@@ -25,6 +25,7 @@ app.use(
       maxAge: 1000 * 60 * 60 * 24,
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
+      sameSite: "none"
     },
   })
 );
@@ -318,9 +319,12 @@ app.post("/login", async (req, res) => {
       });
     }
 
+    console.log("donbeeeeeeeeeeeee")
+
     req.session.userId = user._id;
     req.session.userName = user.name;
 
+    console.log("jdbvjnenfjdv",req.session.userId, user._id );
     res.redirect("/");
   } catch (error) {
     res.status(500).render("login", {
