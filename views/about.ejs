@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+</head>
+
+<body class="bg-gray-50 text-gray-700 ">
+  <%- include('utils/nav') %>
+
+  <main class="container mx-auto px-4 py-12 flex justify-center items-center flex-col  h-[90vh]">
+    <section class="text-center">
+      <h1 class="text-4xl font-bold text-blue-600 mb-6">About Us</h1>
+      <p class="text-lg leading-relaxed text-gray-600 mb-8">
+        Welcome <strong><%= user ? user.name : "Shopper" %></strong>, your ultimate destination for a seamless online shopping experience. 
+      </p>
+    </section>
+
+    <section class="grid gap-8 md:grid-cols-3 mt-10">
+      <div class="bg-white shadow-lg rounded-lg p-6 text-center">
+        <h2 class="text-xl font-semibold text-blue-500 mb-3">Our Mission</h2>
+        <p class="text-gray-600 leading-relaxed">
+          Our mission is to provide a reliable and user-friendly shopping platform that caters to all your needs with top-notch products and services.
+        </p>
+      </div>
+
+      <div class="bg-white shadow-lg rounded-lg p-6 text-center">
+        <h2 class="text-xl font-semibold text-blue-500 mb-3">Our Vision</h2>
+        <p class="text-gray-600 leading-relaxed">
+          We envision a world where online shopping is simple, accessible, and enjoyable for everyone, ensuring a secure and personalized experience.
+        </p>
+      </div>
+
+      <div class="bg-white shadow-lg rounded-lg p-6 text-center">
+        <h2 class="text-xl font-semibold text-blue-500 mb-3">Why Choose Us</h2>
+        <p class="text-gray-600 leading-relaxed">
+          From a wide selection of quality products to secure payment options, we aim to be your trusted partner in every shopping journey.
+        </p>
+      </div>
+    </section>
+
+    <section class="mt-12 text-center">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">What We Offer</h2>
+      <ul class="list-disc list-inside text-gray-600 mx-auto max-w-2xl">
+        <li>Exclusive collections for men, women, and kids</li>
+        <li>Secure and fast checkout process</li>
+        <li>Personalized recommendations</li>
+        <li>24/7 customer support</li>
+      </ul>
+    </section>
+  </main>
+
+  <%- include('utils/footer') %>
+</body>
+
+</html>

@@ -42,3 +42,18 @@
 .zoom-in {
   animation: zoomIn 8s ease-in-out infinite;
 }
+
+
+#mobile-menu-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 20px;
+  width: 30px;
+}
+
+#mobile-menu-button span {
+  height: 4px;
+  width: 30px;
+  background-color: #1a1818;
+}

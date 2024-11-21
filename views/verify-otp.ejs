@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+</head>
+
+<body class="bg-gray-50 text-[20px] min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <%- include('utils/nav') %>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex justify-center items-center">
+        <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-center mb-6 text-blue-600">Verify OTP</h2>
+
+            <p class="text-gray-600 text-center mb-6">
+                Enter the One-Time Password (OTP) sent to your registered email address to proceed.
+            </p>
+
+            <% if (error) { %>
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <strong>Error:</strong> <%= error %>
+                </div>
+            <% } %>
+
+            <!-- Countdown Timer -->
+            <div class="text-center mb-4">
+                <p class="text-gray-700">Time remaining: 
+                    <span id="timer" class="font-semibold text-red-500">01:00</span>
+                </p>
+            </div>
+
+            <form action="/verify-otp" method="POST" class="space-y-6">
+                <div>
+                    <label for="otp" class="block text-gray-700">OTP:</label>
+                    <input type="text" id="otp" name="otp" required 
+                        class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter your 6-digit OTP">
+                </div>
+                <button type="submit"
+                    class="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600 transition duration-300">
+                    Verify OTP
+                </button>
+            </form>
+
+            <div class="mt-4 text-center">
+                <p class="text-gray-600">Didn’t receive the OTP?</p>
+                <a href="/forgot-password" class="text-blue-500 hover:underline">Resend OTP</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Timer logic
+        const timerElement = document.getElementById("timer");
+        let timeRemaining = 60; // 1 minute in seconds
+
+        const timerInterval = setInterval(() => {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+
+            // Update timer display
+            timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+
+                // OTP Expired action
+                alert("Your OTP has expired. Please request a new one.");
+                window.location.href = "/forgot-password"; // Redirect to resend OTP page
+            }
+
+            timeRemaining--;
+        }, 1000);
+    </script>
+</body>
+
+</html>

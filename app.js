@@ -8,6 +8,11 @@ const cookieParser = require("cookie-parser");
 const Cart = require("./model/cart");
 const User = require("./model/user");
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const Otp = require("./model/otp");
+require("dotenv").config();
+
+
 
 dbConnect();
 
@@ -28,6 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 app.use(cookieParser());
+
 app.use((req, res, next) => {
   res.locals.user = req.session.userId
     ? {
@@ -84,6 +90,53 @@ app.get("/kids/:id", async (req, res) => {
   res.render("showkid", { product: kids });
 });
 
+app.get('/about', async (req, res) => {
+  try {
+    const userCart = await Cart.findOne({ userId: req.session.userId }).populate('userId');
+    if (!userCart) {
+      return res.render('about', { user: null });
+    }
+    const user = userCart.userId; // Populated user details
+    res.render('about', { user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Something went wrong");
+  }
+});
+
+app.get('/contact' , (req , res)=>{
+  res.render("contact")
+})
+app.post('/submit-contact', async (req, res) => {
+  const { name, email, message } = req.body;
+
+  const mailOptions = {
+    from: 'your-email@gmail.com', 
+    to: 'recipient-email@example.com', 
+    subject: 'New Contact Form Submission', 
+    text: `Contact form submission from:
+           Name: ${name}
+           Email: ${email}
+           Message: ${message}`
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Message sent successfully');
+
+    res.redirect('/message-sent');
+  } catch (error) {
+    console.error('Error sending email:', error);
+
+   
+    res.redirect('/?errorMessage=There was an error sending your message. Please try again later.');
+  }
+});
+
+app.get('/message-sent', (req, res) => {
+  res.render('message-sent');
+});
+
 
 app.get("/cart", isAuthenticated, async (req, res) => {
   let cart = await Cart.findOne({ userId: req.session.userId }); 
@@ -132,7 +185,6 @@ app.post("/cart/add", isAuthenticated, async (req, res) => {
       });
     }
 
-    // Recalculate total price
     cart.totalPrice = cart.items.reduce((total, item) => total + item.price, 0);
     console.log("Updated Cart Total Price:", cart.totalPrice);
 
@@ -192,21 +244,46 @@ app.post("/cart/remove", isAuthenticated, async (req, res) => {
   res.redirect("/cart");
 });
 
-app.get("/order", async (req, res) => {
-  res.render("order");
+app.get("/order-confirmation", isAuthenticated, async (req, res) => {
+  const cart = await Cart.findOne({ userId: req.session.userId });
+
+  // if (!cart || cart.items.length === 0) {
+  //   return res.redirect("/order-confirmation"); 
+  // }
+
+  res.render("order-confirmation", { cart });
 });
+
+app.post("/checkout", isAuthenticated, async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ userId: req.session.userId });
+    if (!cart || cart.items.length === 0) {
+      return res.redirect("/cart"); 
+    }
+
+
+    const orderDetails = {
+      userId: req.session.userId,
+      items: cart.items,
+      totalPrice: cart.totalPrice,
+      createdAt: new Date(),
+    };
+    console.log("Order placed:", orderDetails);
+
+    cart.items = [];
+    cart.totalPrice = 0;
+    await cart.save();
+
+    res.redirect("/order-confirmation");
+  } catch (error) {
+    console.error("Checkout error:", error);
+    res.status(500).send("An error occurred while processing your order.");
+  }
+});
+
 
 app.get("/logIn", async (req, res) => {
   res.render("login", { error: null });
-});
-
-app.get("/signup", async (req, res) => {
-  res.render("signup", { error: null });
-});
-
-app.post('/signup', (req, res) => {
-  const error = 'User exists'; 
-  res.render('signup', { error: error });
 });
 
 app.post("/login", async (req, res) => {
@@ -227,7 +304,6 @@ app.post("/login", async (req, res) => {
       });
     }
 
-    // Create session
     req.session.userId = user._id;
     req.session.userName = user.name;
 
@@ -239,36 +315,10 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// app.post("/signup", async (req, res) => {
-//   try {
-//     const { name, email, password } = req.body;
-//     console.log(req.body);
 
-//     const existingUser = await User.findOne({ email });
-//     if (existingUser) {
-//       return res.status(400).render("signup", {
-//         error: "User already exists",
-//       });
-//     }
-
-//     const hashedPassword = await bcrypt.hash(password, 12);
-
-//     const user = await User.create({
-//       name,
-//       email,
-//       password: hashedPassword,
-//     });
-
-//     req.session.userId = user._id;
-//     req.session.userName = user.name;
-
-//     res.redirect("/");
-//   } catch (error) {
-//     res.status(500).render("signup", {
-//       error: "Signup error",
-//     });
-//   }
-// });
+app.get("/signup", async (req, res) => {
+  res.render("signup", { error: null });
+});
 
 app.post("/signup", async (req, res) => {
   try {
@@ -289,7 +339,6 @@ app.post("/signup", async (req, res) => {
       password: hashedPassword,
     });
 
-    // Automatically log the user in after signup
     req.session.userId = user._id;
     req.session.userName = user.name;
 
@@ -311,6 +360,141 @@ app.get("/logout", (req, res) => {
     res.redirect("/");
   });
 });
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL, 
+    pass: process.env.EMAIL_PASSWORD, 
+  },
+});
+
+app.get("/forgot-password", (req, res) => {
+  res.render("forgot-password", { message: null, error: null });
+});
+
+// Handle Forgot Password
+app.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.render("forgot-password", {
+        message: null,
+        error: "User with this email does not exist",
+      });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await Otp.create({
+      userId: user._id,
+      otp,
+      expiresAt: Date.now() +1 * 60 * 1000, 
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Password Reset OTP",
+      text: `Your OTP for resetting the password is: ${otp}`,
+    });
+
+    req.session.email = email; // Store email in session for next steps
+    res.redirect("/verify-otp");
+  } catch (error) {
+    console.error("Error in forgot-password:", error);
+    res.render("forgot-password", {
+      message: null,
+      error: "An error occurred. Please try again later.",
+    });
+  }
+});
+
+app.get("/verify-otp", (req, res) => {
+  res.render("verify-otp", { error: null });
+});
+
+app.post("/verify-otp", async (req, res) => {
+  const { otp } = req.body;
+
+  try {
+    const email = req.session.email;
+    if (!email) {
+      return res.redirect("/forgot-password");
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.render("verify-otp", {
+        error: "Invalid session. Please try again.",
+      });
+    }
+
+    const otpRecord = await Otp.findOne({ userId: user._id, otp });
+    if (!otpRecord || otpRecord.expiresAt < Date.now()) {
+      return res.render("verify-otp", {
+        error: "Invalid or expired OTP.",
+      });
+    }
+
+    req.session.verifiedUserId = user._id; // Mark user as verified in session
+    await Otp.deleteMany({ userId: user._id });
+
+    res.redirect("/reset-password");
+  } catch (error) {
+    console.error("Error in verify-otp:", error);
+    res.render("verify-otp", {
+      error: "An error occurred. Please try again later.",
+    });
+  }
+});
+
+// Reset Password Page
+app.get("/reset-password", (req, res) => {
+  if (!req.session.verifiedUserId) {
+    return res.redirect("/forgot-password");
+  }
+
+  res.render("reset-password", { error: null, message: null });
+});
+
+// Handle Reset Password
+app.post("/reset-password", async (req, res) => {
+  const { newPassword } = req.body;
+
+  try {
+    const userId = req.session.verifiedUserId;
+    if (!userId) {
+      return res.redirect("/forgot-password");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.render("reset-password", {
+        error: "Invalid session. Please try again.",
+        message: null,
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    user.password = hashedPassword;
+    await user.save();
+
+    req.session.destroy(); 
+    
+    return res.redirect("/login");
+
+  } catch (error) {
+    console.error("Error in reset-password:", error);
+    res.render("reset-password", {
+      message: null,
+      error: "An error occurred. Please try again later.",
+    });
+  }
+});
+
 
 app.listen(3000, () => {
   console.log("Server Listening at 3000");
