@@ -1,12 +1,20 @@
-<nav class="flex justify-evenly items-center p-4 h-[10vh] bg-white text-[20px] relative">
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopper Navigation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<nav class="flex justify-evenly items-center p-4 h-[10vh] text-[20px] relative">
   <button id="mobile-menu-button" class="md:hidden flex items-center justify-center p-2">
     <span class="block w-6 h-0.5 bg-black mb-1"></span>
     <span class="block w-6 h-0.5 bg-black mb-1"></span>
     <span class="block w-6 h-0.5 bg-black"></span>
   </button>
 
-  <!-- Logo and Title -->
+
   <div class="flex items-center gap-3">
     <a class="cursor-pointer" href="/">
       <img src="/images/logo.png" alt="Logo" class="w-50 h-50" />
@@ -16,15 +24,13 @@
     </h1>
   </div>
 
-  <!-- Main Menu (Desktop View) -->
   <ul class="hidden md:flex gap-8 text-teal-800">
     <li><a class="hover:border-b-2 border-teal-400" href="/">Shop</a></li>
     <li><a class="hover:border-b-2 border-teal-400" href="/men">Men</a></li>
     <li><a class="hover:border-b-2 border-teal-400" href="/women">Women</a></li>
     <li><a class="hover:border-b-2 border-teal-400" href="/kids">Kids</a></li>
     <li><a class="hover:border-b-2 border-teal-400" href="/about">About Us</a></li>
-    <li><a class="hover:border-b-2 border-teal-400" href="/contact">Contact</a></li>
-
+    <li><a class="hover:border-b-2 border-teal-400" href="/contact">Contact Us</a></li>
   </ul>
 
   <div class="hidden md:flex gap-5">
@@ -35,30 +41,28 @@
       <button class="px-4 py-2 rounded-full border-2 border-teal-200 font-semibold text-teal-700">
         <a href="/signup">SignUp</a>
       </button>
-      <% } else { %>
-        <div class="flex items-center gap-4">
-          <span class="text-teal-700">Hi, <%= user.name %></span>
-          <button class="px-4 py-2 rounded-full border-2 border-teal-200 font-semibold text-teal-700">
-            <a href="/logout">Logout</a>
-          </button>
-        </div>
-        <% } %>
+    <% } else { %>
+      <div class="flex items-center gap-4">
+        <span class="text-teal-700">Hi, <%= user.name %></span>
+        <button class="px-4 py-2 rounded-full border-2 border-teal-200 font-semibold text-teal-700">
+          <a href="/logout">Logout</a>
+        </button>
+      </div>
+    <% } %>
   </div>
 
-  <!-- Cart Icon (Desktop View) -->
   <a href="/cart" class="hidden md:flex">
     <img src="/images/cart_icon.png" alt="Cart" class="w-6 h-6" />
   </a>
 
- <!-- Mobile Menu -->
-<div id="mobile-menu" class="absolute top-16 left-0 w-full bg-white flex-col items-start gap-4 p-4 hidden md:hidden">
+ <div id="mobile-menu" class="absolute top-16 left-0 w-full bg-white flex-col items-start gap-4 p-4 md:hidden">
   <ul class="flex flex-col gap-4 text-teal-800 w-full items-start">
     <li><a class="hover:border-b-2 border-teal-400" href="/">Shop</a></li>
     <li><a class="hover:border-b-2 border-teal-400" href="/men">Men</a></li>
     <li><a class="hover:border-b-2 border-teal-400" href="/women">Women</a></li>
     <li><a class="hover:border-b-2 border-teal-400" href="/kids">Kids</a></li>
     <li><a class="hover:border-b-2 border-teal-400" href="/about">About Us</a></li>
-    <li><a class="hover:border-b-2 border-teal-400" href="/contact">Contact</a></li>
+    <li><a class="hover:border-b-2 border-teal-400" href="/contact">Contact Us</a></li>
   </ul>
 
   <div class="flex flex-col gap-4 mt-6 w-full items-start">
@@ -83,8 +87,6 @@
     </a>
   </div>
 </div>
-
-  
 </nav>
 
 <script>
@@ -95,3 +97,5 @@
     mobileMenu.classList.toggle('hidden'); 
   });
 </script>
+</body>
+</html>

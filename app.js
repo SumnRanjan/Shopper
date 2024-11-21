@@ -104,10 +104,22 @@ app.get('/about', async (req, res) => {
   }
 });
 
-app.get('/contact' , (req , res)=>{
-  res.render("contact")
-})
+// Contact page (GET)
+app.get('/contact', (req, res) => {
+  // Check if the user is logged in
+  if (!req.session.userId) {
+    return res.redirect('/login'); // Redirect to login page if not logged in
+  }
+  res.render("contact");
+});
+
+// Handle contact form submission (POST)
 app.post('/submit-contact', async (req, res) => {
+  // Check if the user is logged in
+  if (!req.session.userId) {
+    return res.redirect('/login'); // Redirect to login page if not logged in
+  }
+
   const { name, email, message } = req.body;
 
   const mailOptions = {
@@ -128,10 +140,10 @@ app.post('/submit-contact', async (req, res) => {
   } catch (error) {
     console.error('Error sending email:', error);
 
-   
     res.redirect('/?errorMessage=There was an error sending your message. Please try again later.');
   }
 });
+
 
 app.get('/message-sent', (req, res) => {
   res.render('message-sent');
@@ -146,6 +158,7 @@ app.get("/cart", isAuthenticated, async (req, res) => {
   }
   res.render("cart", { cart });
 });
+
 app.post("/cart/add", isAuthenticated, async (req, res) => {
   try {
     const { productId } = req.body;
@@ -315,40 +328,34 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-app.get("/signup", async (req, res) => {
-  res.render("signup", { error: null });
+app.get("/signup", async (req, res) => {   
+  res.render("signup", { error: null }); 
 });
 
-app.post("/signup", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).render("signup", {
-        error: "Email is already in use. Please try logging in.",
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
-    req.session.userId = user._id;
-    req.session.userName = user.name;
-
-    res.redirect("/");
-  } catch (error) {
-    console.error("Signup error:", error);
-    res.status(500).render("signup", {
-      error: "An unexpected error occurred. Please try again later.",
-    });
-  }
+app.post("/signup", async (req, res) => {   
+  try {     
+    const { name, email, password } = req.body;      
+    const existingUser = await User.findOne({ email });     
+    if (existingUser) {       
+      return res.status(400).render("signup", {         
+        error: "Email is already in use. Please try logging in.",       
+      });     
+    }      
+    const hashedPassword = await bcrypt.hash(password, 12);      
+    const user = await User.create({       
+      name,       
+      email,       
+      password: hashedPassword,     
+    });      
+    req.session.userId = user._id;     
+    req.session.userName = user.name;      
+    res.redirect("/login");  // Redirect to the login page after successful signup
+  } catch (error) {     
+    console.error("Signup error:", error);     
+    res.status(500).render("signup", {       
+      error: "An unexpected error occurred. Please try again later.",     
+    });   
+  } 
 });
 
 
