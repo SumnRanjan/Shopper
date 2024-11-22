@@ -11,6 +11,23 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const Otp = require("./model/otp");
 require("dotenv").config();
+const MongoStore = require("connect-mongo");
+
+app.use(
+  session({
+    secret: "anfuje837bfhdsbf237rbfhsb",
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.DATABASE_URL, // Add your MongoDB connection string
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24,
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+    },
+  })
+);
 
 
 
@@ -91,34 +108,21 @@ app.get("/kids/:id", async (req, res) => {
   res.render("showkid", { product: kids });
 });
 
-app.get('/about', async (req, res) => {
-  try {
-    const userCart = await Cart.findOne({ userId: req.session.userId }).populate('userId');
-    if (!userCart) {
-      return res.render('about', { user: null });
-    }
-    const user = userCart.userId; // Populated user details
-    res.render('about', { user });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Something went wrong");
-  }
+app.get('/about', (req, res) => {
+  res.render('about');
 });
 
-// Contact page (GET)
 app.get('/contact', (req, res) => {
-  // Check if the user is logged in
   if (!req.session.userId) {
-    return res.redirect('/login'); // Redirect to login page if not logged in
+    return res.redirect('/login'); 
   }
   res.render("contact");
 });
 
-// Handle contact form submission (POST)
+
 app.post('/submit-contact', async (req, res) => {
-  // Check if the user is logged in
   if (!req.session.userId) {
-    return res.redirect('/login'); // Redirect to login page if not logged in
+    return res.redirect('/login');
   }
 
   const { name, email, message } = req.body;
@@ -260,11 +264,9 @@ app.post("/cart/remove", isAuthenticated, async (req, res) => {
 
 app.get("/order-confirmation", isAuthenticated, async (req, res) => {
   const cart = await Cart.findOne({ userId: req.session.userId });
-
   // if (!cart || cart.items.length === 0) {
   //   return res.redirect("/order-confirmation"); 
   // }
-
   res.render("order-confirmation", { cart });
 });
 
@@ -318,12 +320,8 @@ app.post("/login", async (req, res) => {
       });
     }
 
-    console.log("donbeeeeeeeeeeeee")
-
     req.session.userId = user._id;
     req.session.userName = user.name;
-
-    console.log("jdbvjnenfjdv",req.session.userId, user._id );
     res.redirect("/");
   } catch (error) {
     res.status(500).render("login", {
