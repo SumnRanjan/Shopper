@@ -11,33 +11,17 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const Otp = require("./model/otp");
 require("dotenv").config();
-const MongoStore = require("connect-mongo");
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "default_secret",
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.DATABASE_URL,
-    }),
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
-      secure: process.env.NODE_ENV === "production", // Secure cookies in production
-      httpOnly: true, // Protect against XSS
-    },
-  })
-);
 
 
 
 dbConnect();
-
+app.set("trust proxy", 1); 
 app.use(
   session({
     secret: "anfuje837bfhdsbf237rbfhsb",
     resave: false,
     saveUninitialized: false,
+    name:"ecomm-appp",
     cookie: {
       maxAge: 1000 * 60 * 60 * 24,
       secure: process.env.NODE_ENV === "production",
@@ -71,6 +55,8 @@ const isAuthenticated = (req, res, next) => {
 };
 
 app.get("/", async (req, res) => {
+  console.log(req.session)
+  console.log(process.env.NODE_ENV === "production")
   const kid = await Collection.find({ category: "kid" });
   res.render("index", { kid });
 });
@@ -108,21 +94,34 @@ app.get("/kids/:id", async (req, res) => {
   res.render("showkid", { product: kids });
 });
 
-app.get('/about', (req, res) => {
-  res.render('about');
+app.get('/about', async (req, res) => {
+  try {
+    const userCart = await Cart.findOne({ userId: req.session.userId }).populate('userId');
+    if (!userCart) {
+      return res.render('about', { user: null });
+    }
+    const user = userCart.userId; // Populated user details
+    res.render('about', { user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Something went wrong");
+  }
 });
 
+// Contact page (GET)
 app.get('/contact', (req, res) => {
+  // Check if the user is logged in
   if (!req.session.userId) {
-    return res.redirect('/login'); 
+    return res.redirect('/login'); // Redirect to login page if not logged in
   }
   res.render("contact");
 });
 
-
+// Handle contact form submission (POST)
 app.post('/submit-contact', async (req, res) => {
+  // Check if the user is logged in
   if (!req.session.userId) {
-    return res.redirect('/login');
+    return res.redirect('/login'); // Redirect to login page if not logged in
   }
 
   const { name, email, message } = req.body;
@@ -264,9 +263,11 @@ app.post("/cart/remove", isAuthenticated, async (req, res) => {
 
 app.get("/order-confirmation", isAuthenticated, async (req, res) => {
   const cart = await Cart.findOne({ userId: req.session.userId });
+
   // if (!cart || cart.items.length === 0) {
   //   return res.redirect("/order-confirmation"); 
   // }
+
   res.render("order-confirmation", { cart });
 });
 
@@ -322,6 +323,7 @@ app.post("/login", async (req, res) => {
 
     req.session.userId = user._id;
     req.session.userName = user.name;
+
     res.redirect("/");
   } catch (error) {
     res.status(500).render("login", {
@@ -448,7 +450,7 @@ app.post("/verify-otp", async (req, res) => {
       });
     }
 
-    req.session.verifiedUserId = user._id; 
+    req.session.verifiedUserId = user._id; // Mark user as verified in session
     await Otp.deleteMany({ userId: user._id });
 
     res.redirect("/reset-password");
@@ -469,7 +471,7 @@ app.get("/reset-password", (req, res) => {
   res.render("reset-password", { error: null, message: null });
 });
 
-
+// Handle Reset Password
 app.post("/reset-password", async (req, res) => {
   const { newPassword } = req.body;
 
