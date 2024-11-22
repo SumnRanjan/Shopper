@@ -15,16 +15,16 @@ const MongoStore = require("connect-mongo");
 
 app.use(
   session({
-    secret: "anfuje837bfhdsbf237rbfhsb",
+    secret: process.env.SESSION_SECRET || "default_secret",
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.DATABASE_URL, // Add your MongoDB connection string
+      mongoUrl: process.env.DATABASE_URL,
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24,
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      secure: process.env.NODE_ENV === "production", // Secure cookies in production
+      httpOnly: true, // Protect against XSS
     },
   })
 );
@@ -448,7 +448,7 @@ app.post("/verify-otp", async (req, res) => {
       });
     }
 
-    req.session.verifiedUserId = user._id; // Mark user as verified in session
+    req.session.verifiedUserId = user._id; 
     await Otp.deleteMany({ userId: user._id });
 
     res.redirect("/reset-password");
@@ -469,7 +469,7 @@ app.get("/reset-password", (req, res) => {
   res.render("reset-password", { error: null, message: null });
 });
 
-// Handle Reset Password
+
 app.post("/reset-password", async (req, res) => {
   const { newPassword } = req.body;
 
