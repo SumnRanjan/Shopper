@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+</head>
+
+<body class="bg-gray-50 text-[20px] min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <%- include('utils/nav') %>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex justify-center items-center">
+        <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-center mb-6 text-blue-600">Verify Your OTP</h2>
+
+            <% if (error) { %>
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <strong>Error:</strong>
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <p class="text-gray-600 text-center mb-6">
+                Please enter the One-Time Password (OTP) sent to your email.
+            </p>
+
+            <form action="/verify-otp" method="POST" class="space-y-6">
+                <div>
+                    <label for="otp" class="block text-gray-700 font-medium mb-2">OTP:</label>
+                    <input type="text" id="otp" name="otp" required
+                        class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter the OTP">
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600 transition duration-300">
+                    Verify OTP
+                </button>
+            </form>
+
+            <div class="text-center mt-4">
+                <a href="/resend-otp" class="text-blue-500 hover:underline">Resend OTP</a>
+            </div>
+
+            <div class="mt-4 text-center">
+                <p class="text-gray-600">Entered the wrong email?</p>
+                <a href="/login" class="text-blue-500 hover:underline">Go Back to Login</a>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
